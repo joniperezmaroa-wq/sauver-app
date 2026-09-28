@@ -1,0 +1,10 @@
+{
+  "name": "SAUVER App",
+  "short_name": "SAUVER",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f5f4",
+  "theme_color": "#0f7a5c",
+  "lang": "es-AR",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
