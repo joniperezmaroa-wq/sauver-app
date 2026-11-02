@@ -4,7 +4,16 @@ Capa de gestión, control, CRM, inteligencia y planificación de SAUVER, constru
 
 | Carpeta | Contenido |
 |---|---|
-| `prototype/` | **Fase 1** · prototipo navegable con datos ficticios (diseño, navegación, mobile, dashboards, vendedor). |
-| `docs/` | Arquitectura aprobada y decisiones. |
+| `app/` | **App operativa** (V1 comercial): vendedor mobile con funcionamiento sin señal, visitas con foto, pedidos, tablero de Administración, clientes, productos, usuarios y ajustes. |
+| `supabase/` | Base de datos: tablas, permisos (RLS) y funciones de pedidos. |
+| `prototype/` | Fase 1 · prototipo navegable con datos ficticios (referencia de diseño). |
+| `docs/` | Arquitectura aprobada y [puesta en marcha](docs/puesta-en-marcha.md). |
 
-Ver [`docs/arquitectura.md`](docs/arquitectura.md) y [`prototype/README.md`](prototype/README.md).
+## Desarrollo
+
+```bash
+cd app
+cp .env.example .env.local   # completar con los datos de Supabase
+npm install
+npm run dev
+```

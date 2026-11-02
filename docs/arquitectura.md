@@ -31,3 +31,12 @@ Next.js + TypeScript · Tailwind + shadcn/ui + Motion · Supabase (Postgres, Aut
 5. Operación administrativa y stock.
 6. Abastecimiento y producción.
 7. Inteligencia V1 (Preguntale a Sauver) y marketing básico.
+
+## Implementación V1 comercial (decisión de puesta en marcha)
+
+Para salir a la calle en una semana, la app operativa es una **SPA React (Vite) instalable (PWA)** que habla directo con Supabase:
+
+- **Permisos en la base**: Row Level Security + funciones `create_order`, `set_order_status`, `cancel_order`, `approve_order`. El celular no puede escribir pedidos ni precios directamente; el servidor calcula precios y totales.
+- **Sin señal**: la app lee de una base local (IndexedDB) y envía en orden una cola de cambios (clientes, visitas con foto, pedidos) con ids generados en el dispositivo, así un reintento nunca duplica.
+- **Tiempo real**: Administración recibe los pedidos nuevos al instante (Supabase Realtime).
+- Next.js queda para cuando haga falta lógica de servidor propia (importador Dux, IA); el diseño y los componentes son los mismos.
