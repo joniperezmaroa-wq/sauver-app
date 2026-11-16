@@ -2,14 +2,18 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { viteSingleFile } from 'vite-plugin-singlefile'
 import { fileURLToPath } from 'node:url'
 
-export default defineConfig({
+// `--mode demo`: un único HTML autocontenido, sin servidor (datos de ejemplo en el dispositivo).
+export default defineConfig(({ mode }) => ({
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   plugins: [
     react(),
     tailwindcss(),
+    ...(mode === 'demo' ? [viteSingleFile()] : []),
     VitePWA({
+      disable: mode === 'demo',
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
@@ -41,5 +45,5 @@ export default defineConfig({
       },
     }),
   ],
-  build: { chunkSizeWarningLimit: 2000 },
-})
+  build: { chunkSizeWarningLimit: 2000, outDir: mode === 'demo' ? 'dist-demo' : 'dist' },
+}))

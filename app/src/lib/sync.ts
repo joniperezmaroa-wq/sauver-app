@@ -7,6 +7,7 @@ import { useSyncExternalStore } from 'react'
 import { db, getMeta, setMeta, type OutboxEntry } from './db'
 import { supabase, isConfigured, isNetworkError, errorText } from './supabase'
 import type { Customer, Order, Visit } from './types'
+import { isDemo } from './demo'
 
 const TABLES = [
   { name: 'settings', remote: 'app_settings' },
@@ -103,6 +104,7 @@ async function pushOne(e: OutboxEntry) {
     const { data, error } = await supabase.rpc('create_order', { p: e.payload })
     if (error) throw error
     const order = data as Order
+    if (isDemo) return // el reemplazo local ya guardó el pedido con sus productos
     await db.transaction('rw', db.orders, db.order_items, async () => {
       await db.order_items.where('order_id').equals(order.id).delete()
       await db.orders.put(order)
@@ -150,6 +152,7 @@ async function pullTable(name: (typeof TABLES)[number]['name'], remote: string) 
 }
 
 async function pull(isStaff: boolean) {
+  if (isDemo) return
   for (const t of TABLES) {
     if ('staffOnly' in t && t.staffOnly && !isStaff) continue
     await pullTable(t.name, t.remote)
@@ -163,7 +166,7 @@ let again = false
 let staff = false
 
 export function syncNow(): Promise<void> {
-  if (!isConfigured) return Promise.resolve()
+  if (!isConfigured && !isDemo) return Promise.resolve()
   if (running) {
     again = true
     return running

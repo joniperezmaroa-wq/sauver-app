@@ -1,4 +1,6 @@
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter, MemoryRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { isDemo } from '@/lib/demo'
+import { DemoPicker } from '@/features/auth/DemoPicker'
 import { AuthProvider, useAuth } from '@/lib/auth'
 import { ToastProvider } from '@/lib/toast'
 import { isConfigured } from '@/lib/supabase'
@@ -37,7 +39,10 @@ function Splash() {
 
 function Gate() {
   const { loading, session, profile, recovering } = useAuth()
-  if (!isConfigured) return <NotConfiguredScreen />
+  if (isDemo) {
+    if (loading) return <Splash />
+    if (!profile) return <DemoPicker />
+  } else if (!isConfigured) return <NotConfiguredScreen />
   if (loading) return <Splash />
   if (recovering && session) return <SetPasswordScreen />
   if (!session) return <LoginScreen />
@@ -84,13 +89,16 @@ function Gate() {
   )
 }
 
+// En demo la navegación vive en memoria: la página se abre como un único archivo, sin rutas en la URL.
+const Router = isDemo ? MemoryRouter : BrowserRouter
+
 export default function App() {
   return (
     <ToastProvider>
       <AuthProvider>
-        <BrowserRouter>
+        <Router>
           <Gate />
-        </BrowserRouter>
+        </Router>
       </AuthProvider>
     </ToastProvider>
   )

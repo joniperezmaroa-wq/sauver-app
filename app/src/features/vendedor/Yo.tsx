@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { arsCompact, dayMonth } from '@/lib/format'
 import { timeHM, weekStart } from '@/lib/dates'
 import { useState } from 'react'
+import { isDemo } from '@/lib/demo'
 
 const KIND: Record<string, string> = { customer: 'Cliente', visit: 'Visita', order: 'Pedido' }
 
@@ -89,7 +90,7 @@ export function VendedorYo() {
 
       {!confirm ? (
         <Button variant="ghost" size="lg" onClick={() => (outbox.length ? setConfirm(true) : void signOut())}>
-          <LogOut size={16} /> Cerrar sesión
+          <LogOut size={16} /> {isDemo ? 'Cambiar de rol (demo)' : 'Cerrar sesión'}
         </Button>
       ) : (
         <div className="flex flex-col gap-2 rounded-2xl bg-crit-soft p-4 text-[13.5px]">

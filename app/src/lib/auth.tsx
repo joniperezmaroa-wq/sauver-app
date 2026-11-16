@@ -5,6 +5,7 @@ import { db, clearLocal, getMeta, setMeta } from './db'
 import { startSync, stopSync } from './sync'
 import type { Profile } from './types'
 import { readPref, writePref } from './storage'
+import { isDemo, demoRole, setDemoRole, seedDemo, DEMO_PROFILES } from './demo'
 
 interface AuthState {
   loading: boolean
@@ -14,12 +15,14 @@ interface AuthState {
   recovering: boolean
   signOut: () => Promise<void>
   finishRecovery: () => void
+  /** Solo modo demo: entrar con un rol */
+  enterDemo: (r: 'vendedor' | 'admin' | 'gerencia') => void
 }
 
 const Ctx = createContext<AuthState | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [loading, setLoading] = useState(isConfigured)
+  const [loading, setLoading] = useState(isConfigured || isDemo)
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<Profile | null>(() => {
     try {
@@ -54,7 +57,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if (!isConfigured) return
+    if (!isDemo) return
+    void (async () => {
+      await seedDemo()
+      const r = demoRole()
+      if (r) {
+        setProfile(DEMO_PROFILES[r])
+        startSync({ isStaff: r !== 'vendedor' })
+      }
+      setLoading(false)
+    })()
+  }, [])
+
+  useEffect(() => {
+    if (!isConfigured || isDemo) return
     supabase.auth.getSession().then(async ({ data }) => {
       setSession(data.session)
       const cached = readPref('profile')
@@ -78,6 +94,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     stopSync()
+    if (isDemo) {
+      // En demo "salir" es cambiar de rol: los datos quedan para ver el circuito completo.
+      setDemoRole(null)
+      setProfile(null)
+      return
+    }
     await supabase.auth.signOut()
     await clearLocal()
     writePref('profile', null)
@@ -85,7 +107,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <Ctx.Provider value={{ loading, session, profile, recovering, signOut, finishRecovery: () => setRecovering(false) }}>
+    <Ctx.Provider
+      value={{
+        loading,
+        session: isDemo && profile ? ({ user: { id: profile.id, email: profile.email } } as unknown as Session) : session,
+        profile,
+        recovering,
+        signOut,
+        finishRecovery: () => setRecovering(false),
+        enterDemo: (r) => {
+          setDemoRole(r)
+          setProfile(DEMO_PROFILES[r])
+          startSync({ isStaff: r !== 'vendedor' })
+        },
+      }}
+    >
       {children}
     </Ctx.Provider>
   )

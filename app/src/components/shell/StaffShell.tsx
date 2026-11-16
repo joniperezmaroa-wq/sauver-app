@@ -21,6 +21,7 @@ import { Sheet } from '@/components/ui/Sheet'
 import { useAuth, useMe } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { cn } from '@/lib/cn'
+import { isDemo } from '@/lib/demo'
 
 interface Item {
   to: string
@@ -118,7 +119,7 @@ export function StaffShell() {
               <span className="block truncate text-[13.5px] font-medium">{me.full_name || me.email}</span>
               <span className="block truncate text-[12px] text-muted">{me.role === 'gerencia' ? 'Gerencia' : 'Administración'}</span>
             </span>
-            <button onClick={() => void signOut()} title="Cerrar sesión" className="grid size-8 place-items-center rounded-lg text-muted hover:bg-surface-3 hover:text-ink">
+            <button onClick={() => void signOut()} title={isDemo ? 'Cambiar de rol' : 'Cerrar sesión'} className="grid size-8 place-items-center rounded-lg text-muted hover:bg-surface-3 hover:text-ink">
               <LogOut size={16} />
             </button>
           </div>
@@ -194,7 +195,7 @@ export function StaffShell() {
           <div className="mt-3 flex items-center justify-between border-t border-line pt-4">
             <ThemeSwitch />
             <button onClick={() => void signOut()} className="inline-flex items-center gap-2 text-[14px] text-ink-2">
-              <LogOut size={16} /> Cerrar sesión
+              <LogOut size={16} /> {isDemo ? 'Cambiar de rol' : 'Cerrar sesión'}
             </button>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/lib/db'
 import { orderLabel, useCustomer, useOrderItems, useProfiles } from '@/lib/data'
@@ -14,6 +14,7 @@ export function Imprimir() {
   const c = useCustomer(order?.customer_id)
   const items = useOrderItems(order?.id)
   const profiles = useProfiles()
+  const nav = useNavigate()
   const ready = !!order && !!c && items.length > 0
 
   useEffect(() => {
@@ -93,9 +94,14 @@ export function Imprimir() {
           </div>
         )}
         <div className="mt-8 border-t border-[#e3e8e5] pt-3 text-[10px] text-[#6b7771]">Generado por SAUVER App · {new Date().toLocaleString('es-AR')}</div>
-        <button onClick={() => window.print()} className="mt-6 rounded-lg bg-[#0f7a5c] px-4 py-2 text-[13px] font-medium text-white print:hidden">
-          Imprimir / Guardar PDF
-        </button>
+        <div className="mt-6 flex gap-2 print:hidden">
+          <button onClick={() => window.print()} className="rounded-lg bg-[#0f7a5c] px-4 py-2 text-[13px] font-medium text-white">
+            Imprimir / Guardar PDF
+          </button>
+          <button onClick={() => nav(-1)} className="rounded-lg border border-[#cfd6d2] px-4 py-2 text-[13px] font-medium">
+            Volver
+          </button>
+        </div>
       </div>
     </div>
   )

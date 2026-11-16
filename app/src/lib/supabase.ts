@@ -1,4 +1,6 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { isDemo } from './demo'
+import { demoClient } from './demoBackend'
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
@@ -6,9 +8,11 @@ const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 /** false si todavía no se cargaron las claves de Supabase en el hosting. */
 export const isConfigured = Boolean(url && key)
 
-export const supabase = createClient(url ?? 'http://localhost', key ?? 'sin-configurar', {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-})
+export const supabase: SupabaseClient = isDemo
+  ? (demoClient as unknown as SupabaseClient)
+  : createClient(url ?? 'http://localhost', key ?? 'sin-configurar', {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+    })
 
 /** Mensaje entendible a partir de un error de Supabase o de red. */
 export function errorText(e: unknown): string {

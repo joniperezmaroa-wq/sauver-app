@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { isDemo } from '@/lib/demo'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AlertTriangle, ArrowRight, Check, ClipboardCopy, Printer, MessageCircle } from 'lucide-react'
 import { Sheet } from '@/components/ui/Sheet'
@@ -38,6 +40,7 @@ function Body({ order, onClose }: { order: Order; onClose: () => void }) {
   const items = useOrderItems(order.id)
   const events = useLiveQuery(() => db.order_events.where('order_id').equals(order.id).sortBy('at'), [order.id]) ?? []
   const profiles = useProfiles()
+  const nav = useNavigate()
   const [busy, setBusy] = useState(false)
   const [duxS, setDuxS] = useState('')
   const [duxJ, setDuxJ] = useState('')
@@ -188,7 +191,7 @@ function Body({ order, onClose }: { order: Order; onClose: () => void }) {
                 <ClipboardCopy size={15} /> Copiar para Dux
               </Button>
             )}
-            <Button onClick={() => window.open(`/imprimir/${order.id}`, '_blank')}>
+            <Button onClick={() => (isDemo ? nav(`/imprimir/${order.id}`) : window.open(`/imprimir/${order.id}`, '_blank'))}>
               <Printer size={15} /> PDF
             </Button>
             {c?.whatsapp && (
